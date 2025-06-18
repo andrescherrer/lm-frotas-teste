@@ -1,0 +1,47 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: application
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "9000:9000"
+    networks:
+      - lm_frotas
+
+  nginx:
+    image: nginx:latest
+    container_name: server
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - lm_frotas
+
+  mysql:
+    image: mysql:8.0
+    container_name: database
+    ports:
+      - "3306:3306"
+    environment:            
+      MYSQL_DATABASE: lm_frotas
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password      
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - lm_frotas
+
+networks:
+  lm_frotas:
+
+volumes:
+  dbdata:
